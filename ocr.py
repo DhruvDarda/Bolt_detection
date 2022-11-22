@@ -21,8 +21,14 @@ generated_text = processor.batch_decode(
     generated_ids, skip_special_tokens=True)[0]
 
 print(generated_text)
-# print('hello')
-if re.match("/^a.*$/", generated_text):
-    print('pass')
+
+now_hit = False
+
+if generated_text == 'a+' or generated_text == 'A+' or generated_text == 'at' or generated_text == 'At':
+    if generated_text != 'f' or generated_text != 'a' or generated_text != 'A' or generated_text != 'F':
+        print('pass')
+        now_hit = True
+    else:
+        print('fail')
 else:
     print('fail')
