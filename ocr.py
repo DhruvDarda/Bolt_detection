@@ -2,6 +2,7 @@ from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 import requests
 import os
 from PIL import Image
+import re
 
 processor = TrOCRProcessor.from_pretrained("microsoft/trocr-base-handwritten")
 model = VisionEncoderDecoderModel.from_pretrained(
@@ -21,3 +22,7 @@ generated_text = processor.batch_decode(
 
 print(generated_text)
 # print('hello')
+if re.match("/^a.*$/", generated_text):
+    print('pass')
+else:
+    print('fail')

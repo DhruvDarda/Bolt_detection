@@ -8,7 +8,7 @@ os.chdir("E:/Sem 7/Robotics/Final_Project/")
 if __name__ == '__main__':
 
     # Read in the image.
-    im_src = cv2.imread("E:/Sem 7/Robotics/Final_Project/forlines.jpg")
+    im_src = cv2.imread("E:/Sem 7/Robotics/Final_Project/test.jpg")
 
     # Destination image
     size = (3000, 2000, 3)
@@ -38,5 +38,5 @@ if __name__ == '__main__':
 
     # Show output
     cv2.imshow("Image", im_dst)
-    cv2.imwrite("narrowhmphy.jpg", im_dst)
+    cv2.imwrite("narrowhmphytest.jpg", im_dst)
     cv2.waitKey(0)

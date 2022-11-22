@@ -1,6 +1,7 @@
 import cv2
 import os
 import numpy as np
+from math import abs
 
 original_horizontal_distance = 15
 original_vertical_distance = 12
@@ -52,44 +53,38 @@ red_mask = cv2.inRange(hsv, lower_red, upper_red)
 
 
 coordinates = [0, 0]
-result = cv2.bitwise_and(image, image, mask=blue_mask)
+#result = cv2.bitwise_and(image, image, mask=blue_mask)
+result = image
 centers = output(result)
 centroid_image = result.shape
 centroid_image = (centroid_image[1]//2, centroid_image[0]//2)
+t = 0
 
-while len(centers) > 4:
-    vertical_dist_lst = [np.abs(centers[0][1] - centers[2][1]),
-                         np.abs(centers[1][1] - centers[3][1])]
+centers = centers[1:]
+print(centers)
+while len(centers) > 4 and t < 15:
+    vertical_dist_lst = [np.abs(centers[0][1] - centers[3][1]),
+                         np.abs(centers[1][1] - centers[4][1])]
 
     horizontal_dist_lst = [np.abs(centers[0][0] - centers[1][0]),
-                           np.abs(centers[2][0] - centers[3][0])]
+                           np.abs(centers[3][0] - centers[4][0])]
 
     horizontal_dist = np.mean(horizontal_dist_lst)
     vertical_dist = np.mean(vertical_dist_lst)
 
     coordinates[0] = (
-        horizontal_dist/original_horizontal_distance) * (centers[4][1]-centroid_image[1])
+        original_horizontal_distance/horizontal_dist) * (centers[2][1]-centroid_image[1])
     coordinates[1] = (
-        vertical_dist/original_vertical_distance) * (centers[4][0]-centroid_image[0])
+        original_vertical_distance/vertical_dist) * (centers[2][0]-centroid_image[0])
+    t += 1
 
-result = cv2.bitwise_and(image, image, mask=red_mask)
-centers = output(result)
-
-while len(centers) > 4:
-    vertical_dist_lst = [np.abs(centers[0][1] - centers[2][1]),
-                         np.abs(centers[1][1] - centers[3][1])]
-
-    horizontal_dist_lst = [np.abs(centers[0][0] - centers[1][0]),
-                           np.abs(centers[2][0] - centers[3][0])]
-
-    horizontal_dist = np.mean(horizontal_dist_lst)
-    vertical_dist = np.mean(vertical_dist_lst)
-
-    coordinates[0] = (
-        horizontal_dist/original_horizontal_distance) * (centers[4][1]-centroid_image[1])
-    coordinates[1] = (
-        vertical_dist/original_vertical_distance) * (centers[4][0]-centroid_image[0])
 
 cv2.imshow("Final Image", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+print(coordinates)
+
+centers = output(image)
+coordinates[0] = centers[0][0] - centroid_image[0]
+while(abs(coordinates[0]) < 0.5 and abs(coordinates[1]) < 0.5):
+    coordinates[0] = centers[0][0] - centroid_image[0]
