@@ -5,7 +5,9 @@ import numpy as np
 os.chdir("E:/Sem 7/Robotics/Final_Project/")
 
 # Read image
-image = cv2.imread("E:/Sem 7/Robotics/Final_Project/forlines.jpg")
+#image = cv2.imread("E:/Sem 7/Robotics/Final_Project/forlines.jpg")
+
+image = cv2.imread("E:/Sem 7/Robotics/Final_Project/Not_A_plus/24.jpg")
 
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -67,8 +69,8 @@ lines = cv2.HoughLinesP(
     1,  # Distance resolution in pixels
     np.pi/100,  # Angle resolution in radians
     threshold=50,  # Min number of votes for valid line
-    minLineLength=700,  # Min allowed length of line
-    maxLineGap=200  # Max allowed gap between line for joining them
+    minLineLength=10,  # Min allowed length of line
+    maxLineGap=100  # Max allowed gap between line for joining them
 )
 
 # Iterate over points

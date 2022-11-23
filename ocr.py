@@ -10,25 +10,24 @@ model = VisionEncoderDecoderModel.from_pretrained(
 
 # load image from the IAM dataset
 #url = "https://fki.tic.heia-fr.ch/static/img/a01-122-02.jpg"
-url = "E:/Sem 7/Robotics/Final_Project/A_plus/33.jpg"
+url = "E:/Sem 7/Robotics/Final_Project/A_plus/36.jpg"
 #image = Image.open(requests.get(url, stream=True).raw).convert("RGB")
 image = Image.open(url).convert("RGB")
 
-pixel_values = processor(image, return_tensors="pt").pixel_values
-generated_ids = model.generate(pixel_values)
 
-generated_text = processor.batch_decode(
-    generated_ids, skip_special_tokens=True)[0]
+def ocr_text(image):
+    pixel_values = processor(image, return_tensors="pt").pixel_values
+    generated_ids = model.generate(pixel_values)
 
-print(generated_text)
+    generated_text = processor.batch_decode(
+        generated_ids, skip_special_tokens=True)[0]
 
-now_hit = False
+    print(generated_text)
 
-if generated_text == 'a+' or generated_text == 'A+' or generated_text == 'at' or generated_text == 'At':
-    if generated_text != 'f' or generated_text != 'a' or generated_text != 'A' or generated_text != 'F':
-        print('pass')
-        now_hit = True
+    if generated_text == 'a+' or generated_text == 'A+' or generated_text == 'at' or generated_text == 'At':
+        if generated_text != 'f' or generated_text != 'a' or generated_text != 'A' or generated_text != 'F':
+            return True
+        else:
+            return False
     else:
-        print('fail')
-else:
-    print('fail')
+        return False

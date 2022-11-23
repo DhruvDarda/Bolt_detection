@@ -1,7 +1,6 @@
 import cv2
 import os
 import numpy as np
-from math import abs
 
 original_horizontal_distance = 15
 original_vertical_distance = 12
@@ -12,7 +11,6 @@ def output(result):
     gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
 
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
-
     centers = []
 
     ret, thresh = cv2.threshold(gray, 127, 255, 0)
@@ -29,62 +27,63 @@ def output(result):
         cY = int(M["m01"] / M["m00"])
         cv2.circle(image, (cX, cY), 5, (255, 255, 255), -1)
         centers.append((cX, cY))
+    '''
+    detected_circles = cv2.HoughCircles(gray,
+                                        cv2.HOUGH_GRADIENT, 1, 20, param1=50,
+                                        param2=30, minRadius=1, maxRadius=40)
 
+    # Draw circles that are detected.
+    if detected_circles is not None:
+
+        # Convert the circle parameters a, b and r to integers.
+        detected_circles = np.uint16(np.around(detected_circles))
+
+        for pt in detected_circles[0, :]:
+            a, b, r = pt[0], pt[1], pt[2]
+
+            # Draw the circumference of the circle.
+            cv2.circle(image, (a, b), r, (0, 255, 0), 2)
+
+            # Draw a small circle (of radius 1) to show the center.
+            cv2.circle(image, (a, b), 1, (0, 0, 255), 3)
+
+            centers.append((a, b))
+    '''
     return centers
 
 
 os.chdir("E:/Sem 7/Robotics/Final_Project/")
 
 # Read image
-image = cv2.imread("E:/Sem 7/Robotics/Final_Project/test.jpg")
+image = cv2.imread("E:/Sem 7/Robotics/Final_Project/test1.jpg")
 
 hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
 # Threshold of blue in HSV space
-lower_blue = np.array([60, 35, 140])
-upper_blue = np.array([180, 255, 255])
+lower = np.array([10, 0, 0])
 
-lower_red = np.array([160, 50, 50])
-upper_red = np.array([180, 255, 255])
+upper = np.array([280, 80, 70])
 
 # preparing the mask to overlay
-blue_mask = cv2.inRange(hsv, lower_blue, upper_blue)
-red_mask = cv2.inRange(hsv, lower_red, upper_red)
+mask = cv2.inRange(hsv, lower, upper)
 
-
-coordinates = [0, 0]
-#result = cv2.bitwise_and(image, image, mask=blue_mask)
+#result = cv2.bitwise_and(image, image, mask=mask)
 result = image
+#cv2.imshow('filter', result)
 centers = output(result)
-centroid_image = result.shape
+centroid_image = image.shape
 centroid_image = (centroid_image[1]//2, centroid_image[0]//2)
-t = 0
-
-centers = centers[1:]
-print(centers)
-while len(centers) > 4 and t < 15:
-    vertical_dist_lst = [np.abs(centers[0][1] - centers[3][1]),
-                         np.abs(centers[1][1] - centers[4][1])]
-
-    horizontal_dist_lst = [np.abs(centers[0][0] - centers[1][0]),
-                           np.abs(centers[3][0] - centers[4][0])]
-
-    horizontal_dist = np.mean(horizontal_dist_lst)
-    vertical_dist = np.mean(vertical_dist_lst)
-
-    coordinates[0] = (
-        original_horizontal_distance/horizontal_dist) * (centers[2][1]-centroid_image[1])
-    coordinates[1] = (
-        original_vertical_distance/vertical_dist) * (centers[2][0]-centroid_image[0])
-    t += 1
 
 
 cv2.imshow("Final Image", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-print(coordinates)
 
-centers = output(image)
-coordinates[0] = centers[0][0] - centroid_image[0]
-while(abs(coordinates[0]) < 0.5 and abs(coordinates[1]) < 0.5):
-    coordinates[0] = centers[0][0] - centroid_image[0]
+print(centers)
+
+tool_location = min(centers, key=lambda x: x[1])
+bolt_location = max(centers, key=lambda x: x[1])
+#bolt_1_location = min(centers, key=lambda x: x[0])
+#bolt_2_location = max(centers, key=lambda x: x[0])
+
+print(tool_location, bolt_location)
