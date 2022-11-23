@@ -4,6 +4,7 @@ import numpy as np
 
 original_horizontal_distance = 15
 original_vertical_distance = 12
+maping_const = 10
 
 
 def output(result):
@@ -57,33 +58,35 @@ os.chdir("E:/Sem 7/Robotics/Final_Project/")
 # Read image
 image = cv2.imread("E:/Sem 7/Robotics/Final_Project/test1.jpg")
 
-hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-# Threshold of blue in HSV space
-lower = np.array([10, 0, 0])
+def delta(image):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-upper = np.array([280, 80, 70])
+    # Threshold of blue in HSV space
+    lower = np.array([10, 0, 0])
 
-# preparing the mask to overlay
-mask = cv2.inRange(hsv, lower, upper)
+    upper = np.array([280, 80, 70])
 
-#result = cv2.bitwise_and(image, image, mask=mask)
-result = image
-#cv2.imshow('filter', result)
-centers = output(result)
-centroid_image = image.shape
-centroid_image = (centroid_image[1]//2, centroid_image[0]//2)
+    # preparing the mask to overlay
+    mask = cv2.inRange(hsv, lower, upper)
 
+    #result = cv2.bitwise_and(image, image, mask=mask)
+    result = image
+    #cv2.imshow('filter', result)
+    centers = output(result)
+    centroid_image = image.shape
+    centroid_image = (centroid_image[1]//2, centroid_image[0]//2)
 
-cv2.imshow("Final Image", image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    cv2.imshow("Final Image", image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-print(centers)
+    # print(centers)
 
-tool_location = min(centers, key=lambda x: x[1])
-bolt_location = max(centers, key=lambda x: x[1])
-#bolt_1_location = min(centers, key=lambda x: x[0])
-#bolt_2_location = max(centers, key=lambda x: x[0])
+    #tool_location = min(centers, key=lambda x: x[1])
+    bolt_location = max(centers, key=lambda x: x[1])
+    #bolt_1_location = min(centers, key=lambda x: x[0])
+    #bolt_2_location = max(centers, key=lambda x: x[0])
 
-print(tool_location, bolt_location)
+    coordinates = maping_const*(bolt_location - centroid_image)
+    return coordinates
