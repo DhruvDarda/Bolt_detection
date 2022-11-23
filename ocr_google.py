@@ -1,6 +1,7 @@
 # Import required packages
 import cv2
 import pytesseract
+import re
 
 # Mention the installed location of Tesseract-OCR in your system
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
@@ -9,6 +10,11 @@ pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesserac
 img = cv2.imread("sample.jpg")
 
 # Preprocessing the image starts
+
+
+def remove(string):
+    pattern = re.compile(r'\s+')
+    return re.sub(pattern, '', string)
 
 
 def ocr_text(img):
@@ -27,7 +33,7 @@ def ocr_text(img):
     # of the rectangle to be detected.
     # A smaller value like (10, 10) will detect
     # each word instead of a sentence.
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18))
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (40, 35))
 
     # Applying dilation on the threshold image
     dilation = cv2.dilate(thresh1, rect_kernel, iterations=1)
@@ -57,12 +63,11 @@ def ocr_text(img):
             break
         # Apply OCR on the cropped image
         text = pytesseract.image_to_string(cropped)
+        text = remove(text)
         print(text)
-        if text == 'a+' or text == 'A+' or text == 'at' or text == 'At':
-            if text != 'f' or text != 'a' or text != 'A' or text != 'F':
-                print([x+w/2 - centroid_image[0], y+h/2 - centroid_image[1]])
-                return [x+w/2 - centroid_image[0], y+h/2 - centroid_image[1]], True
-            else:
-                return [-1, 1], False
+        if text == 'a+' or text == 'A+' or text == 'at' or text == 'At' or text == ' A+' or text == '| A+' or text == 'A+ ':
+            # if text != 'f' or text != 'a' or text != 'A' or text != 'F':
+            print([x+w/2 - centroid_image[0], y+h/2 - centroid_image[1]])
+            return [x+w/2 - centroid_image[0], y+h/2 - centroid_image[1]], True
         else:
             return [-1, 1], False

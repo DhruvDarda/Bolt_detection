@@ -4,16 +4,15 @@ import numpy as np
 
 original_horizontal_distance = 15
 original_vertical_distance = 12
-maping_const = 10
+maping_const = 1
 
 
-def output(result):
-    global image
+def output(result, image):
     gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
 
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
     centers = []
-
+    '''
     ret, thresh = cv2.threshold(gray, 127, 255, 0)
 
     # find contours in the binary image
@@ -30,8 +29,8 @@ def output(result):
         centers.append((cX, cY))
     '''
     detected_circles = cv2.HoughCircles(gray,
-                                        cv2.HOUGH_GRADIENT, 1, 20, param1=50,
-                                        param2=30, minRadius=1, maxRadius=40)
+                                        cv2.HOUGH_GRADIENT, 1, 20, param1=100,
+                                        param2=30, minRadius=1, maxRadius=100)
 
     # Draw circles that are detected.
     if detected_circles is not None:
@@ -49,8 +48,8 @@ def output(result):
             cv2.circle(image, (a, b), 1, (0, 0, 255), 3)
 
             centers.append((a, b))
-    '''
-    return centers
+
+    return centers, image
 
 
 os.chdir("E:/Sem 7/Robotics/Final_Project/")
@@ -63,30 +62,34 @@ def delta(image):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     # Threshold of blue in HSV space
-    lower = np.array([10, 0, 0])
+    lower = np.array([70, 0, 5])
 
-    upper = np.array([280, 80, 70])
+    upper = np.array([230, 40, 50])
 
     # preparing the mask to overlay
     mask = cv2.inRange(hsv, lower, upper)
 
     #result = cv2.bitwise_and(image, image, mask=mask)
-    result = image
+    result = image.copy()
     #cv2.imshow('filter', result)
-    centers = output(result)
+    centers, im2 = output(result, image)
     centroid_image = image.shape
     centroid_image = (centroid_image[1]//2, centroid_image[0]//2)
-
-    cv2.imshow("Final Image", image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-    # print(centers)
+    print(centers)
 
     #tool_location = min(centers, key=lambda x: x[1])
-    bolt_location = max(centers, key=lambda x: x[1])
+    #bolt_location = max(centers, key=lambda x: x[1])
     #bolt_1_location = min(centers, key=lambda x: x[0])
     #bolt_2_location = max(centers, key=lambda x: x[0])
+    if not centers:
+        return np.array([np.NAN, np.NAN]), im2
+    coordinates = maping_const * \
+        (np.array(centers[0]) - np.array(centroid_image))
+    return coordinates, im2
 
-    coordinates = maping_const*(bolt_location - centroid_image)
-    return coordinates
+
+'''
+cv2.imshow("Final Image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+'''
